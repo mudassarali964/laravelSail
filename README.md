@@ -7,60 +7,85 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## Laravel Sail
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+[Laravel Sail](https://laravel.com/docs/10.x/sail#introduction) is a light-weight command-line interface for interacting with Laravel's default Docker development environment. Sail provides a great starting point for building a Laravel application using PHP, MySQL, and Redis without requiring prior Docker experience.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+At its heart, Sail is the docker-compose.yml file and the sail script that is stored at the root of your project. The sail script provides a CLI with convenient methods for interacting with the Docker containers defined by the docker-compose.yml file.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Steps to run the project with docker through the sail
 
-## Learning Laravel
+- 1- Create new file as .env in the root directory, copy .env.example file code into .env file and replace the Database setting as:
+    
+    - DB_CONNECTION=mysql
+    - DB_HOST=mysql
+    - DB_PORT=3306
+    - DB_DATABASE=laravel_cashier
+    - DB_USERNAME=root
+    - DB_PASSWORD=
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- 2- Make sure Docker Desktop is running on your machine.
+- 3- Add your project into docker FILE SHARING: Go to docker setting -> Resources -> FILE SHARING -> Add your project path 
+    -> Apply and restart.
+- 4- Run the command to install the composer: composer install
+- 5- Configuring A Shell Alias
+    - [Configuring A Shell Alias](https://laravel.com/docs/10.x/sail#configuring-a-shell-alias).
+    - To make sure this is always available, you may add this to your shell configuration file in your home directory, such as ~/. zshrc or ~/.bashrc, and then restart your shell.
+    - Steps for configuring the alias: 
+        - if you are using bash run in your terminal then run the follwing commands:
+        - Run this command: nano ~/.bash_profile
+        - Add alias into the file and save the file:
+        - alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
+        - Finally run this command: source ~/.bash_profile 
+    - If successfully configured then run the following commands to start the docker
+        - sail build --no-cache
+        - sail up -d
+        - sail artisan key:generate
+        - sail artisan migrate:fresh --seed
+    - If error in configuration then move to the next step (without alias)
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- 6- If any case step "5" get failed, then do the following steps: (without alias setup)
+    - ./vendor/bin/sail build --no-cache
+    - ./vendor/bin/sail up -d
+    - ./vendor/bin/sail artisan key:generate
+    - ./vendor/bin/sail artisan migrate:fresh --seed
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Run the project in the docker via sail (Alias Configuration)
 
-## Laravel Sponsors
+- sail build --no-cache
+- sail up -d
+- sail artisan key:generate
+- sail artisan migrate:fresh --seed
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Run the project in the docker via sail (No Alias Configuration)
 
-### Premium Partners
+- ./vendor/bin/sail build --no-cache
+- ./vendor/bin/sail up -d
+- ./vendor/bin/sail artisan key:generate
+- ./vendor/bin/sail artisan migrate:fresh --seed
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+## Stop the project in the docker via sail (Alias Configuration)
 
-## Contributing
+- sail stop
+- sail down
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Stop the project in the docker via sail (No Alias Configuration)
 
-## Code of Conduct
+- ./vendor/bin/sail stop
+- ./vendor/bin/sail down
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Only for update the database credentials from env
 
-## Security Vulnerabilities
+- If we need to change the database credentials from .env file, then we should follow the given steps:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+- 1- Run the given commands:
+	sail stop
+	sail down => Will untagged (not remove), all the images and volume related to the container
+	sail down -v => Will remove all the containers volume
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- 2- Manually removed all the images related to the container
+- 3- Then change the database credentials in the .env file
+- 3- Finally Run these commands:
+	- sail build --no-cache OR ./vendor/bin/sail --no-cache
+	- sail up -d OR ./vendor/bin/sail up -d
+	
